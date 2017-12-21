@@ -34,8 +34,8 @@ func (a *RouterAPI) Routes() *mux.Router {
 	r.Handle("/backend/{name}/swap", handler(a.swap)).Methods(http.MethodPost)
 	// TLS
 	r.Handle("/backend/{name}/certificate/{certname}", handler(a.addCertificate)).Methods(http.MethodPut)
-	r.Handle("/backend/{name}/certificate/{certname}", handler(a.removeCertificate)).Methods(http.MethodGet)
-	r.Handle("/backend/{name}/certificate/{certname}", handler(a.getCertificate)).Methods(http.MethodDelete)
+	r.Handle("/backend/{name}/certificate/{certname}", handler(a.getCertificate)).Methods(http.MethodGet)
+	r.Handle("/backend/{name}/certificate/{certname}", handler(a.removeCertificate)).Methods(http.MethodDelete)
 	// CNAME
 	r.Handle("/backend/{name}/cname/{cname}", handler(a.setCname)).Methods(http.MethodPost)
 	r.Handle("/backend/{name}/cname", handler(a.getCnames)).Methods(http.MethodGet)
@@ -158,7 +158,7 @@ func (a *RouterAPI) addCertificate(w http.ResponseWriter, r *http.Request) error
 	if err != nil {
 		return err
 	}
-	return a.IngressService.(router.ServiceTLS).AddCertificate(name, cert)
+	return a.IngressService.(router.ServiceTLS).AddCertificate(name, certName, cert)
 }
 
 // getCertificate Return certificate for app

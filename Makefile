@@ -1,7 +1,7 @@
 BINARY=kubernetes-router
 TAG=latest
 IMAGE=tsuru/$(BINARY)
-LOCAL_REGISTRY=10.200.10.1:5000
+LOCAL_REGISTRY=10.211.55.35:5000
 LINTER_ARGS = \
 	-j 4 --enable-gc -s vendor -e '.*/vendor/.*' --vendor --enable=misspell --enable=gofmt --enable=goimports --enable=unused \
 	--disable=gocyclo --deadline=60m --tests
@@ -17,7 +17,7 @@ build:
 
 .PHONY: build-docker
 build-docker:
-	docker build --rm -t $(IMAGE):$(TAG) .
+	docker build -f Dockerfile.dev --rm -t $(IMAGE):$(TAG) .
 
 .PHONY: push
 push: build-docker

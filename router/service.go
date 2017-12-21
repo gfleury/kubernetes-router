@@ -27,8 +27,8 @@ type Service interface {
 // ServiceTLS Certificates interface
 type ServiceTLS interface {
 	Service
-	AddCertificate(appName string, cert CertData) error
-	GetCertificate(appName string, certName string) (CertData, error)
+	AddCertificate(appName string, certName string, cert CertData) error
+	GetCertificate(appName string, certName string) (*CertData, error)
 	RemoveCertificate(appName string, certName string) error
 }
 
