@@ -21,7 +21,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/tsuru/kubernetes-router/api"
 	"github.com/tsuru/kubernetes-router/kubernetes"
-	"github.com/tsuru/kubernetes-router/router"
 )
 
 func main() {
@@ -53,12 +52,9 @@ func main() {
 		Labels:      *k8sLabels,
 		Annotations: *k8sAnnotations,
 	}
-	var service router.Service = &kubernetes.LBService{BaseService: base, OptsAsLabels: *optsToLabels}
-	if *ingressMode {
-		service = &kubernetes.IngressService{BaseService: base}
-	}
 
-	routerAPI := api.RouterAPI{IngressService: service}
+	routerAPI := getRouterAPI(*ingressMode, base, optsToLabels)
+
 	r := mux.NewRouter().StrictSlash(true)
 
 	r.PathPrefix("/api").Handler(negroni.New(
@@ -119,4 +115,11 @@ func handleSignals(server *http.Server) {
 		log.Fatalf("Error during server shutdown: %v", err)
 	}
 	log.Print("Server shutdown succeeded.")
+}
+
+func getRouterAPI(ingressMode bool, base *kubernetes.BaseService, optsToLabels *MapFlag) api.RouterAPI {
+	if ingressMode {
+		return api.RouterAPI{IngressService: &kubernetes.IngressService{BaseService: base}}
+	}
+	return api.RouterAPI{IngressService: &kubernetes.LBService{BaseService: base, OptsAsLabels: *optsToLabels}}
 }

@@ -6,6 +6,7 @@ package kubernetes
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/tsuru/kubernetes-router/router"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
@@ -22,10 +23,40 @@ type IngressService struct {
 
 // Create creates an Ingress resource pointing to a service
 // with the same name as the App
-func (k *IngressService) Create(appName string, _ router.Opts) error {
+func (k *IngressService) Create(appName string, routerOpts router.Opts) error {
+	var spec v1beta1.IngressSpec
 	client, err := k.ingressClient()
 	if err != nil {
 		return err
+	}
+	if len(routerOpts.Domain) > 0 {
+		spec = v1beta1.IngressSpec{
+			Rules: []v1beta1.IngressRule{
+				v1beta1.IngressRule{
+					Host: routerOpts.Domain,
+					IngressRuleValue: v1beta1.IngressRuleValue{
+						HTTP: &v1beta1.HTTPIngressRuleValue{
+							Paths: []v1beta1.HTTPIngressPath{
+								v1beta1.HTTPIngressPath{
+									Path: routerOpts.Route,
+									Backend: v1beta1.IngressBackend{
+										ServiceName: appName,
+										ServicePort: intstr.FromInt(defaultServicePort),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+	} else {
+		spec = v1beta1.IngressSpec{
+			Backend: &v1beta1.IngressBackend{
+				ServiceName: appName,
+				ServicePort: intstr.FromInt(defaultServicePort),
+			},
+		}
 	}
 	i := v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
@@ -34,12 +65,7 @@ func (k *IngressService) Create(appName string, _ router.Opts) error {
 			Labels:      map[string]string{appLabel: appName},
 			Annotations: make(map[string]string),
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: appName,
-				ServicePort: intstr.FromInt(defaultServicePort),
-			},
-		},
+		Spec: spec,
 	}
 	for k, v := range k.Labels {
 		i.ObjectMeta.Labels[k] = v
@@ -172,4 +198,51 @@ func (k *IngressService) swap(srcIngress, dstIngress *v1beta1.Ingress) {
 	srcIngress.Spec.Backend.ServiceName, dstIngress.Spec.Backend.ServiceName = dstIngress.Spec.Backend.ServiceName, srcIngress.Spec.Backend.ServiceName
 	srcIngress.Spec.Backend.ServicePort, dstIngress.Spec.Backend.ServicePort = dstIngress.Spec.Backend.ServicePort, srcIngress.Spec.Backend.ServicePort
 	k.BaseService.swap(&srcIngress.ObjectMeta, &dstIngress.ObjectMeta)
+}
+
+// AddCertificate adds certificates to app ingress
+func (k *IngressService) AddCertificate(appName string, cert router.CertData) error {
+	var err error
+	log.Println(appName)
+	log.Println(cert)
+	return err
+}
+
+// GetCertificate get certificates from app ingress
+func (k *IngressService) GetCertificate(appName string, certName string) (router.CertData, error) {
+	var err error
+	log.Println(appName)
+	log.Println(certName)
+	return router.CertData{}, err
+}
+
+// RemoveCertificate delete certificates from app ingress
+func (k *IngressService) RemoveCertificate(appName string, certName string) error {
+	var err error
+	log.Println(appName)
+	log.Println(certName)
+	return err
+}
+
+// SetCname adds CNAME to app ingress
+func (k *IngressService) SetCname(appName string, cname string) error {
+	var err error
+	log.Println(appName)
+	log.Println(cname)
+	return err
+}
+
+// GetCnames get CNAMEs from app ingress
+func (k *IngressService) GetCnames(appName string) (router.CnamesResp, error) {
+	var err error
+	log.Println(appName)
+	return router.CnamesResp{}, err
+}
+
+// UnsetCname delete CNAME from app ingress
+func (k *IngressService) UnsetCname(appName string, cname string) error {
+	var err error
+	log.Println(appName)
+	log.Println(cname)
+	return err
 }
