@@ -1,0 +1,8 @@
+FROM alpine:latest  
+#RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+ADD kubernetes-router .
+
+EXPOSE 8077
+
+CMD ["/root/kubernetes-router"]  
