@@ -36,7 +36,7 @@ type ServiceTLS interface {
 type ServiceCNAME interface {
 	Service
 	SetCname(appName string, cname string) error
-	GetCnames(appName string) (CnamesResp, error)
+	GetCnames(appName string) (*CnamesResp, error)
 	UnsetCname(appName string, cname string) error
 }
 

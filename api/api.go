@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
@@ -168,6 +169,10 @@ func (a *RouterAPI) getCertificate(w http.ResponseWriter, r *http.Request) error
 	certName := vars["certname"]
 	log.Printf("Getting certificate %s from %s", certName, name)
 	cert, err := a.IngressService.(router.ServiceTLS).GetCertificate(name, certName)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return err
+	}
 	b, err := json.Marshal(&cert)
 	if err != nil {
 		return err
@@ -182,7 +187,11 @@ func (a *RouterAPI) removeCertificate(w http.ResponseWriter, r *http.Request) er
 	name := vars["name"]
 	certName := vars["certname"]
 	log.Printf("Removing certificate %s from %s", certName, name)
-	return a.IngressService.(router.ServiceTLS).RemoveCertificate(name, certName)
+	err := a.IngressService.(router.ServiceTLS).RemoveCertificate(name, certName)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+	return err
 }
 
 // setCname Add CNAME to app
@@ -191,7 +200,14 @@ func (a *RouterAPI) setCname(w http.ResponseWriter, r *http.Request) error {
 	name := vars["name"]
 	cname := vars["cname"]
 	log.Printf("Adding on %s CNAME %s", name, cname)
-	return a.IngressService.(router.ServiceCNAME).SetCname(name, cname)
+	err := a.IngressService.(router.ServiceCNAME).SetCname(name, cname)
+	if err != nil {
+		if strings.Contains(err.Error(), "exists") {
+			w.WriteHeader(http.StatusConflict)
+		}
+		w.WriteHeader(http.StatusNotFound)
+	}
+	return err
 }
 
 // getCnames Return CNAMEs for app
