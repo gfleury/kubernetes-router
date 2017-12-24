@@ -93,7 +93,7 @@ func (k *IngressNginxService) Create(appName string, routerOpts router.Opts) err
 		i.Spec.TLS = []v1beta1.IngressTLS{
 			{
 				Hosts:      []string{i.Spec.Rules[0].Host},
-				SecretName: secretName(appName),
+				SecretName: secretName(appName, i.Spec.Rules[0].Host),
 			},
 		}
 		i.ObjectMeta.Annotations["kubernetes.io/tls-acme"] = "true"
@@ -220,8 +220,8 @@ func (k *IngressNginxService) secretClient() (typedV1.SecretInterface, error) {
 	return client.CoreV1().Secrets(k.Namespace), nil
 }
 
-func secretName(appName string) string {
-	return appName + "-secret"
+func secretName(appName, certName string) string {
+	return appName + "-" + certName + "-secret"
 }
 
 func annotationWithPrefix(suffix string) string {
@@ -251,7 +251,7 @@ func (k *IngressNginxService) AddCertificate(appName string, certName string, ce
 
 	tlsSecret := v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        secretName(appName),
+			Name:        secretName(appName, certName),
 			Namespace:   k.Namespace,
 			Labels:      map[string]string{appLabel: appName},
 			Annotations: make(map[string]string),
@@ -284,7 +284,7 @@ func (k *IngressNginxService) GetCertificate(appName string, certName string) (*
 		return nil, err
 	}
 
-	retSecret, err := secret.Get(secretName(appName), metav1.GetOptions{})
+	retSecret, err := secret.Get(secretName(appName, certName), metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -317,7 +317,7 @@ func (k *IngressNginxService) RemoveCertificate(appName string, certName string)
 		return err
 	}
 
-	err = secret.Delete(secretName(appName), &metav1.DeleteOptions{})
+	err = secret.Delete(secretName(appName, certName), &metav1.DeleteOptions{})
 
 	return err
 }
