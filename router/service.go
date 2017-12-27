@@ -89,7 +89,7 @@ func (o *Opts) UnmarshalJSON(bs []byte) (err error) {
 			o.Domain = strV
 		case "route":
 			o.Route = strV
-		case "acme":
+		case "tls-acme":
 			o.Acme, err = strconv.ParseBool(strV)
 			if err != nil {
 				o.Acme = false
