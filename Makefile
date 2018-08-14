@@ -17,7 +17,7 @@ build:
 
 .PHONY: build-docker
 build-docker:
-	docker build -f Dockerfile.dev --rm -t $(IMAGE):$(TAG) .
+	docker build -f Dockerfile --rm -t $(IMAGE):$(TAG) .
 	docker tag $(IMAGE):$(TAG) gfleury/$(BINARY):$(TAG)
 	docker push gfleury/$(BINARY):$(TAG)
 

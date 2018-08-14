@@ -201,8 +201,8 @@ func (k *IngressService) Remove(appName string) error {
 	if err != nil {
 		return err
 	}
-	deletePropagation := metav1.DeletePropagationForeground
-	err = client.Delete(ingressName(appName), &metav1.DeleteOptions{PropagationPolicy: &deletePropagation})
+	//deletePropagation := metav1.DeletePropagationForeground
+	err = client.Delete(ingressName(appName), &metav1.DeleteOptions{})
 	if k8sErrors.IsNotFound(err) {
 		return nil
 	}
