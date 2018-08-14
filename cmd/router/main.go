@@ -40,6 +40,9 @@ func main() {
 	optsToLabels := &MapFlag{}
 	flag.Var(optsToLabels, "opts-to-label", "Mapping between router options and service labels. Expects KEY=VALUE format.")
 
+	poolLabels := &MultiMapFlag{}
+	flag.Var(poolLabels, "pool-labels", "Default labels for a given pool. Expects POOL={\"LABEL\":\"VALUE\"} format.")
+
 	flag.Parse()
 
 	err := flag.Lookup("logtostderr").Value.Set("true")
@@ -64,7 +67,7 @@ func main() {
 		}
 		routerAPI = api.RouterAPI{IngressService: &kubernetes.IngressService{BaseService: base, DefaultDomain: *ingressDefaultDomain}}
 	case "service":
-		routerAPI = api.RouterAPI{IngressService: &kubernetes.LBService{BaseService: base, OptsAsLabels: *optsToLabels}}
+		routerAPI = api.RouterAPI{IngressService: &kubernetes.LBService{BaseService: base, OptsAsLabels: *optsToLabels, PoolLabels: *poolLabels}}
 	default:
 		log.Fatalf("fail parameters: Use one of the following modes: service, ingress or ingressNginx.")
 	}

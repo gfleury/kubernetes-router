@@ -205,7 +205,6 @@ func (a *RouterAPI) setCname(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		if strings.Contains(err.Error(), "exists") {
 			w.WriteHeader(http.StatusConflict)
-			return err
 		}
 		w.WriteHeader(http.StatusNotFound)
 	}
