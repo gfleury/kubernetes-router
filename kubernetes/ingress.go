@@ -79,32 +79,6 @@ func (k *IngressService) Create(appName string, routerOpts router.Opts) error {
 	if err != nil {
 		return err
 	}
-	if len(routerOpts.Domain) > 0 {
-		vhost = routerOpts.Domain
-	} else {
-		vhost = fmt.Sprintf("%v.%v", appName, k.DefaultDomain)
-	}
-	spec = v1beta1.IngressSpec{
-		Rules: []v1beta1.IngressRule{
-			{
-				Host: vhost,
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{
-							{
-								Path: routerOpts.Route,
-								Backend: v1beta1.IngressBackend{
-									ServiceName: appName,
-									ServicePort: intstr.FromInt(defaultServicePort),
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
 	i := v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        ingressName(appName),
